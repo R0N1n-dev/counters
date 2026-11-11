@@ -33,12 +33,24 @@ const PRAISE = [
   'Zoom zoom! That was just right!',
 ]
 
+const COMPLIMENTS = [
+  'What a clever counter you are!',
+  'You are amazing with numbers!',
+  'Hooray! Super counting!',
+  'You did it — well done!',
+  'Numbers love you!',
+  'What a star! Keep going!',
+]
+
 const round = ref(1)
 const queue = ref([])
 const dir = ref(1)
 const seq = ref([])
 const idx = ref(0)
 const go = ref(false)
+// 0 waiting, 1 first leg, 2 paused mid-way (compliment), 3 second leg
+const stage = ref(0)
+const cheer = ref('')
 const prompt = ref('')
 const mood = ref('happy')
 const hit = ref(null)
@@ -65,32 +77,42 @@ function clearTimers() {
 const veh = computed(() => queue.value[round.value - 1] || VEHICLES[0])
 const vehicleName = computed(() => veh.value.name)
 
+// each leg of the journey takes half the vehicle's cruise duration
+const legDur = computed(() => `${(parseFloat(veh.value.dur) / 2).toFixed(2)}s`)
+
 const vehicleStyle = computed(() => {
   const v = veh.value
+  const s = stage.value
+  const moving = s === 1 || s === 3
+  const duration = moving ? legDur.value : '0s'
+  const ease = v.ease
   if (v.id === 'rocket') {
+    const bottoms = ['13%', '52%', '52%', '120%']
     return {
       left: '50%',
-      bottom: go.value ? '120%' : '13%',
+      bottom: bottoms[s],
       transform: 'translateX(-50%)',
-      transitionDuration: v.dur,
-      transitionTimingFunction: v.ease,
+      transitionDuration: duration,
+      transitionTimingFunction: ease,
     }
   }
+  const mids = ['5%', '57%', '57%', '114%']
   const pos =
     dir.value > 0
-      ? { left: go.value ? '114%' : '5%' }
-      : { right: go.value ? '114%' : '5%' }
+      ? { left: mids[s] }
+      : { right: mids[s] }
   return {
     ...pos,
     bottom: v.bottom,
-    transitionDuration: v.dur,
-    transitionTimingFunction: v.ease,
+    transitionDuration: duration,
+    transitionTimingFunction: ease,
   }
 })
 
 function buildRound() {
   solved.value = false
   go.value = false
+  stage.value = 0
   idx.value = 0
   tries.value = 0
   hit.value = null
@@ -148,6 +170,8 @@ function pickNumber(n) {
 function finishRound() {
   solved.value = true
   go.value = true
+  stage.value = 1
+  cheer.value = pick(COMPLIMENTS)
   mood.value = 'cheer'
   if (tries.value === 0) firstTry.value++
   prompt.value = `${pick(PRAISE)} ${capitalize(vehicleName.value)} is off!`
@@ -156,13 +180,24 @@ function finishRound() {
   sfx.correct()
   later(() => sfx.whoosh(), 350)
   later(() => sfx.sparkle(), 800)
+
+  // halfway through, the vehicle pauses so it can say something nice
+  const legMs = parseFloat(veh.value.dur) * 500
+  const PAUSE = 1500
+  later(() => {
+    stage.value = 2
+    sfx.chime()
+  }, legMs)
+  later(() => {
+    stage.value = 3
+  }, legMs + PAUSE)
   later(() => {
     if (round.value >= TOTAL.value) finish()
     else {
       round.value++
       buildRound()
     }
-  }, 3000)
+  }, legMs * 2 + PAUSE + 600)
 }
 
 function finish() {
@@ -370,6 +405,15 @@ buildRound()
             <ellipse cx="14" cy="74" rx="8" ry="4" fill="#F59B3F" stroke="#2C2620" stroke-width="2.6" />
             <ellipse cx="106" cy="74" rx="8" ry="4" fill="#F59B3F" stroke="#2C2620" stroke-width="2.6" />
           </svg>
+
+          <!-- mid-journey compliment -->
+          <div
+            v-if="stage === 2"
+            class="np-cheer"
+            :class="{ flip: dir < 0 && veh.id !== 'rocket' }"
+          >
+            {{ cheer }}
+          </div>
         </div>
 
         <Confetti :burst="burst" :origin="origin" :count="36" />
@@ -599,6 +643,56 @@ buildRound()
 
 .np-vehicle.face-left {
   transform: scaleX(-1);
+}
+
+/* mid-journey compliment bubble */
+.np-cheer {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 250px;
+  background: var(--cream);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  padding: 6px 14px 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(12px, 1.7vw, 16px);
+  line-height: 1.25;
+  color: var(--ink);
+  text-align: center;
+  box-shadow: 0 4px 0 rgba(44, 38, 32, 0.25);
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.4;
+  animation: cheerPop 0.35s cubic-bezier(0.2, 1.5, 0.4, 1) forwards;
+}
+
+.np-vehicle.face-left .np-cheer {
+  transform: translateX(-50%) scaleX(-1);
+}
+
+.np-cheer::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: var(--cream);
+  border-right: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@keyframes cheerPop {
+  to {
+    opacity: 1;
+    scale: 1;
+  }
 }
 
 .veh-svg {

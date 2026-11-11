@@ -4,6 +4,7 @@ import GameShell from '../components/GameShell.vue'
 import TypePad from '../components/TypePad.vue'
 import Confetti from '../components/Confetti.vue'
 import GameOver from '../components/GameOver.vue'
+import ClapCritter from '../components/ClapCritter.vue'
 import PromptText from '../components/PromptText.vue'
 import { sfx } from '../lib/audio.js'
 import { randInt, scatterGrid, shuffle, pick } from '../lib/fx.js'
@@ -115,6 +116,7 @@ const tries = ref(0)
 const firstTry = ref(0)
 const hint = ref(false)
 const burst = ref(0)
+const clapper = ref(null)
 const origin = ref({ x: 50, y: 40 })
 const finished = ref(false)
 const earned = ref(0)
@@ -136,6 +138,7 @@ function buildRound() {
   tries.value = 0
   hint.value = false
   mood.value = 'happy'
+  clapper.value = null
   padRef.value?.clear()
 
   if (round.value === 1 || !queue.value.length) {
@@ -181,7 +184,11 @@ function check(n) {
     burst.value++
     origin.value = { x: 50, y: 40 }
     sfx.correct()
+    clapper.value = { kind: randInt(0, 3), x: randInt(14, 86) }
     later(() => sfx.sparkle(), 600)
+    later(() => {
+      clapper.value = null
+    }, 2400)
     later(() => {
       if (round.value >= TOTAL.value) finish()
       else {
@@ -486,6 +493,8 @@ buildRound()
             </template>
           </svg>
         </div>
+
+        <ClapCritter v-if="clapper" :kind="clapper.kind" :x="clapper.x" />
 
         <Confetti :burst="burst" :origin="origin" :count="36" />
       </div>
