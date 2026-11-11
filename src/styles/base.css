@@ -1,0 +1,581 @@
+/* ============================================================
+   Counting Meadow — design system
+   Warm paper, thick ink lines, chunky hard shadows, bouncy motion.
+   ============================================================ */
+
+:root {
+  --paper: #fdf4e3;
+  --paper-deep: #f2e2c4;
+  --cream: #fffaf0;
+  --ink: #2c2620;
+  --ink-soft: #6a5c4b;
+  --coral: #f9715a;
+  --coral-d: #d9523c;
+  --sun: #ffc93c;
+  --sun-d: #e2a51a;
+  --mint: #8fe0b0;
+  --mint-d: #4cab7a;
+  --meadow: #69c27b;
+  --meadow-d: #3f8f57;
+  --sky: #9adcf4;
+  --berry: #ec5b84;
+  --plum: #8371e9;
+  --night: #1d2750;
+  --brown: #a9744f;
+
+  --line: 4px solid var(--ink);
+  --chunk: 0 6px 0 var(--ink);
+  --chunk-soft: 0 7px 0 rgba(44, 38, 32, 0.16);
+  --font-display: 'Baloo 2', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  margin: 0;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 4px solid var(--plum);
+  outline-offset: 3px;
+}
+
+svg {
+  display: block;
+}
+
+/* ---------- chunky primitives ---------- */
+
+.card {
+  background: var(--cream);
+  border: var(--line);
+  border-radius: 26px;
+  box-shadow: var(--chunk-soft);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(16px, 1.6vw, 21px);
+  padding: 0.55em 1.15em 0.65em;
+  border: var(--line);
+  border-radius: 999px;
+  background: var(--cream);
+  box-shadow: 0 5px 0 var(--ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+  user-select: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--ink);
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.btn-primary {
+  background: var(--sun);
+}
+
+.btn-mint {
+  background: var(--mint);
+}
+
+.btn-coral {
+  background: var(--coral);
+  color: var(--cream);
+}
+
+.btn-ghost {
+  background: rgba(255, 250, 240, 0.7);
+}
+
+.icon-btn {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: var(--line);
+  border-radius: 50%;
+  background: var(--cream);
+  box-shadow: 0 4px 0 var(--ink);
+  flex: 0 0 auto;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.icon-btn:hover {
+  transform: translateY(-2px) rotate(-4deg);
+  box-shadow: 0 6px 0 var(--ink);
+}
+
+.icon-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.85);
+  padding: 0.22em 0.75em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 3px 0 rgba(44, 38, 32, 0.25);
+}
+
+/* ---------- shared layout ---------- */
+
+.app-shell {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  position: relative;
+}
+
+.game-root {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 220px;
+  border: var(--line);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 8px 0 rgba(44, 38, 32, 0.2);
+  background: #fff;
+  isolation: isolate;
+}
+
+/* subtle paper grain over every scene */
+.stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: radial-gradient(rgba(44, 38, 32, 0.12) 0.6px, transparent 0.7px);
+  background-size: 4px 4px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- motion library ---------- */
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes bobSm {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1.5deg);
+  }
+}
+
+@keyframes balloonFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(2.5deg);
+  }
+}
+
+@keyframes balloonAway {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(40px, -440px) rotate(16deg);
+    opacity: 0;
+  }
+}
+
+@keyframes balloonPop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(0.15) rotate(8deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shakeX {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  18% {
+    transform: translateX(-8px) rotate(-2deg);
+  }
+  36% {
+    transform: translateX(8px) rotate(2deg);
+  }
+  54% {
+    transform: translateX(-6px) rotate(-1.5deg);
+  }
+  72% {
+    transform: translateX(5px) rotate(1deg);
+  }
+}
+
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes wag {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(9deg);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.78);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-20vw);
+  }
+  to {
+    transform: translateX(110vw);
+  }
+}
+
+@keyframes spinSlow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes dropIn {
+  0% {
+    transform: translateY(-34px) scale(0.94);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-16px) scaleY(1.04);
+  }
+}
+
+@keyframes riseFade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes heartUp {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.5) rotate(-8deg);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-78px) scale(1.1) rotate(8deg);
+  }
+}
+
+@keyframes chomp {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  40% {
+    transform: scaleY(0.22);
+  }
+  70% {
+    transform: scaleY(1.12);
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes bubbleIn {
+  0% {
+    transform: translateY(8px) scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes sunRays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes flyFloat {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(8px, -10px);
+  }
+  66% {
+    transform: translate(-7px, 6px);
+  }
+}
+
+@keyframes flap {
+  0%,
+  100% {
+    transform: scaleX(1) rotate(0deg);
+  }
+  50% {
+    transform: scaleX(0.55) rotate(-12deg);
+  }
+}
+
+/* SVG convenience: make transforms behave around an element's own box */
+.to-center {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ---------- page transition ---------- */
+
+/* screens mount immediately and fade in — never waits on a transitionend,
+   so a backgrounded tab can't leave a child stuck on the menu */
+.home,
+.game-root {
+  animation: screenFade 0.3s ease both;
+}
+
+@keyframes screenFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.screen-enter-active,
+.screen-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.screen-enter-from {
+  opacity: 0;
+  transform: scale(0.98) translateY(10px);
+}
+
+.screen-leave-to {
+  opacity: 0;
+  transform: scale(0.99) translateY(-8px);
+}
+
+.pop-enter-active {
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+
+.pop-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
