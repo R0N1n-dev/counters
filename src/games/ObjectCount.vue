@@ -7,7 +7,7 @@ import GameOver from '../components/GameOver.vue'
 import ClapCritter from '../components/ClapCritter.vue'
 import PromptText from '../components/PromptText.vue'
 import { sfx } from '../lib/audio.js'
-import { randInt, scatterGrid, shuffle, pick } from '../lib/fx.js'
+import { randInt, shuffle, pick } from '../lib/fx.js'
 import { recordGame, store } from '../lib/store.js'
 
 const emit = defineEmits(['exit'])
@@ -15,8 +15,8 @@ const emit = defineEmits(['exit'])
 const TOTAL = computed(() => store.rounds)
 
 // each round mixes TWO kinds of things; kids count only the asked one.
-// colour pairs differ by paint; object pairs share a colour so kids must
-// spot the SHAPE (red cars among red trains, blue planes among blue boats).
+// colour pairs differ by paint; object pairs are different THINGS in
+// different colours so kids must spot the object, not just the colour.
 const RED = '#F0455F'
 const GREEN = '#58A86C'
 const YELLOW = '#FFC93C'
@@ -26,6 +26,9 @@ const PURPLE = '#9B72E8'
 const PINK = '#EC5B84'
 const TEAL = '#3BB5AC'
 const BROWN = '#B07B4F'
+const GREY = '#8D99AE'
+const CREAM = '#FFFBF0'
+const TAN = '#F5D9A8'
 
 const PAIRS = [
   {
@@ -60,18 +63,18 @@ const PAIRS = [
     a: { shape: 'carrot', color: ORANGE, singular: 'orange carrot', plural: 'orange carrots' },
     b: { shape: 'pea', color: GREEN, singular: 'green pea', plural: 'green peas' },
   },
-  // object pairs — same paint, different thing
+  // object pairs — different things, different colours
   {
     a: { shape: 'car', color: RED, singular: 'car', plural: 'cars' },
-    b: { shape: 'train', color: RED, singular: 'train', plural: 'trains' },
+    b: { shape: 'train', color: PURPLE, singular: 'train', plural: 'trains' },
   },
   {
     a: { shape: 'plane', color: BLUE, singular: 'plane', plural: 'planes' },
-    b: { shape: 'boat', color: BLUE, singular: 'boat', plural: 'boats' },
+    b: { shape: 'boat', color: ORANGE, singular: 'boat', plural: 'boats' },
   },
   {
     a: { shape: 'bike', color: GREEN, singular: 'bike', plural: 'bikes' },
-    b: { shape: 'car', color: GREEN, singular: 'car', plural: 'cars' },
+    b: { shape: 'car', color: RED, singular: 'car', plural: 'cars' },
   },
   {
     a: { shape: 'dog', color: BROWN, singular: 'dog', plural: 'dogs' },
@@ -92,6 +95,30 @@ const PAIRS = [
   {
     a: { shape: 'fish', color: ORANGE, singular: 'fish', plural: 'fish' },
     b: { shape: 'bird', color: TEAL, singular: 'bird', plural: 'birds' },
+  },
+  {
+    a: { shape: 'bus', color: YELLOW, singular: 'bus', plural: 'buses' },
+    b: { shape: 'truck', color: BLUE, singular: 'truck', plural: 'trucks' },
+  },
+  {
+    a: { shape: 'bee', color: YELLOW, singular: 'bee', plural: 'bees' },
+    b: { shape: 'ladybird', color: RED, singular: 'ladybird', plural: 'ladybirds' },
+  },
+  {
+    a: { shape: 'mouse', color: GREY, singular: 'mouse', plural: 'mice' },
+    b: { shape: 'rabbit', color: TAN, singular: 'rabbit', plural: 'rabbits' },
+  },
+  {
+    a: { shape: 'pig', color: PINK, singular: 'pig', plural: 'pigs' },
+    b: { shape: 'sheep', color: CREAM, singular: 'sheep', plural: 'sheep' },
+  },
+  {
+    a: { shape: 'cow', color: CREAM, singular: 'cow', plural: 'cows' },
+    b: { shape: 'horse', color: BROWN, singular: 'horse', plural: 'horses' },
+  },
+  {
+    a: { shape: 'worm', color: ORANGE, singular: 'worm', plural: 'worms' },
+    b: { shape: 'hedgehog', color: PURPLE, singular: 'hedgehog', plural: 'hedgehogs' },
   },
 ]
 
@@ -133,6 +160,26 @@ function clearTimers() {
   timers = []
 }
 
+// spread items over a shuffled grid sized to the screen so neighbours keep
+// at least one item-width of air between them
+function scatterItems(n) {
+  const narrow = window.innerWidth <= 640
+  const rows = narrow ? Math.max(2, Math.ceil(n / 4)) : 3
+  const cols = Math.ceil(n / rows)
+  const cw = 90 / cols
+  const ch = 59 / rows
+  const cells = []
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      cells.push({
+        x: 5 + (c + 0.5) * cw + randInt(-12, 12) * (cw / 100),
+        y: 9 + (r + 0.5) * ch + randInt(-12, 12) * (ch / 100),
+      })
+    }
+  }
+  return shuffle(cells).slice(0, n)
+}
+
 function buildRound() {
   solved.value = false
   tries.value = 0
@@ -154,11 +201,15 @@ function buildRound() {
   const otherItem = pair.value[targetKind.value === 'a' ? 'b' : 'a']
   ask.value = targetItem.plural
   target.value = randInt(store.toddler ? 2 : 4, store.toddler ? 5 : 9)
-  let other = randInt(store.toddler ? 1 : 3, store.toddler ? 5 : 9)
-  while (other === target.value) other = randInt(store.toddler ? 1 : 3, store.toddler ? 5 : 9)
+  const narrow = window.innerWidth <= 640
+  const maxTotal = narrow ? 14 : 16
+  const minOther = store.toddler ? 1 : 3
+  const maxOther = Math.min(store.toddler ? 5 : 9, maxTotal - target.value)
+  let other = randInt(minOther, maxOther)
+  while (other === target.value) other = randInt(minOther, maxOther)
 
   const total = target.value + other
-  const spots = scatterGrid(total, { cols: 6, rows: 3, x0: 6, x1: 94, y0: 9, y1: 60 })
+  const spots = scatterItems(total)
   const deck = [
     ...Array.from({ length: target.value }, () => ({ ...targetItem, isTarget: true })),
     ...Array.from({ length: other }, () => ({ ...otherItem, isTarget: false })),
@@ -171,7 +222,7 @@ function buildRound() {
     rot: randInt(-14, 14),
     delay: (Math.random() * 0.9).toFixed(2),
   }))
-  prompt.value = `How many ${ask.value}? Count only those!`
+  prompt.value = `How many ${ask.value}?`
 }
 
 function check(n) {
@@ -209,7 +260,7 @@ function check(n) {
     later(() => {
       if (!solved.value) {
         mood.value = 'happy'
-        prompt.value = `How many ${ask.value}? Count only those!`
+        prompt.value = `How many ${ask.value}?`
       }
     }, 2600)
   }
@@ -486,6 +537,144 @@ buildRound()
               <ellipse cx="30" cy="39" rx="4" ry="2.6" fill="#3A3630" />
             </template>
 
+            <!-- bus -->
+            <template v-else-if="it.shape === 'bus'">
+              <rect x="5" y="15" width="38" height="23" rx="6" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <rect x="9" y="19" width="8" height="7" rx="2" fill="#9ADCF4" stroke="#2C2620" stroke-width="2" />
+              <rect x="20" y="19" width="8" height="7" rx="2" fill="#9ADCF4" stroke="#2C2620" stroke-width="2" />
+              <rect x="31" y="19" width="8" height="12" rx="2" fill="#9ADCF4" stroke="#2C2620" stroke-width="2" />
+              <circle cx="14" cy="37" r="4.5" fill="#3A3630" stroke="#2C2620" stroke-width="2.2" />
+              <circle cx="34" cy="37" r="4.5" fill="#3A3630" stroke="#2C2620" stroke-width="2.2" />
+            </template>
+
+            <!-- truck -->
+            <template v-else-if="it.shape === 'truck'">
+              <rect x="4" y="17" width="26" height="19" rx="4" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <path d="M30 23h9c3 0 6 2 6 5v8H30z" :fill="it.color" stroke="#2C2620" stroke-width="3" stroke-linejoin="round" />
+              <rect x="33" y="19" width="7" height="7" rx="2" fill="#9ADCF4" stroke="#2C2620" stroke-width="2" />
+              <circle cx="12" cy="36" r="4.5" fill="#3A3630" stroke="#2C2620" stroke-width="2.2" />
+              <circle cx="24" cy="36" r="4.5" fill="#3A3630" stroke="#2C2620" stroke-width="2.2" />
+              <circle cx="38" cy="36" r="4.5" fill="#3A3630" stroke="#2C2620" stroke-width="2.2" />
+            </template>
+
+            <!-- bee -->
+            <template v-else-if="it.shape === 'bee'">
+              <ellipse cx="21" cy="15" rx="7" ry="5" fill="#fff" opacity=".75" stroke="#2C2620" stroke-width="2" transform="rotate(-20 21 15)" />
+              <ellipse cx="28" cy="14" rx="6" ry="4.5" fill="#fff" opacity=".75" stroke="#2C2620" stroke-width="2" transform="rotate(15 28 14)" />
+              <ellipse cx="23" cy="30" rx="14" ry="11" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <path d="M17 20v20M27 19v22" stroke="#2C2620" stroke-width="3" stroke-linecap="round" />
+              <circle cx="35" cy="27" r="2.4" fill="#2C2620" />
+              <path d="M37 22q3-4 6-4M37 32q3 4 6 4" fill="none" stroke="#2C2620" stroke-width="1.8" stroke-linecap="round" />
+            </template>
+
+            <!-- ladybird -->
+            <template v-else-if="it.shape === 'ladybird'">
+              <circle cx="24" cy="29" r="15" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <circle cx="24" cy="15" r="6" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <path d="M20 11q-3-5-6-6M28 11q3-5 6-6" fill="none" stroke="#2C2620" stroke-width="2" stroke-linecap="round" />
+              <circle cx="17" cy="27" r="2.4" fill="#2C2620" />
+              <circle cx="31" cy="27" r="2.4" fill="#2C2620" />
+              <circle cx="24" cy="35" r="2.4" fill="#2C2620" />
+              <path d="M14 36l-5 3M34 36l5 3" stroke="#2C2620" stroke-width="2.4" stroke-linecap="round" />
+            </template>
+
+            <!-- mouse -->
+            <template v-else-if="it.shape === 'mouse'">
+              <circle cx="16" cy="17" r="6.5" :fill="it.color" stroke="#2C2620" stroke-width="2.8" />
+              <circle cx="32" cy="17" r="6.5" :fill="it.color" stroke="#2C2620" stroke-width="2.8" />
+              <circle cx="16" cy="17" r="3.4" fill="#F79AC0" />
+              <circle cx="32" cy="17" r="3.4" fill="#F79AC0" />
+              <circle cx="24" cy="29" r="14" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <circle cx="19" cy="26" r="2.2" fill="#2C2620" />
+              <circle cx="29" cy="26" r="2.2" fill="#2C2620" />
+              <circle cx="24" cy="31" r="2.6" fill="#F79AC0" stroke="#2C2620" stroke-width="1.6" />
+              <path d="M10 33q-6 2-8 6" fill="none" stroke="#EC5B84" stroke-width="2.6" stroke-linecap="round" />
+              <path d="M14 36l-4 1M14 38l-4 2M34 36l4 1M34 38l4 2" stroke="#2C2620" stroke-width="1.6" stroke-linecap="round" />
+            </template>
+
+            <!-- rabbit -->
+            <template v-else-if="it.shape === 'rabbit'">
+              <ellipse cx="19" cy="11" rx="5" ry="12" :fill="it.color" stroke="#2C2620" stroke-width="2.8" transform="rotate(-8 19 11)" />
+              <ellipse cx="29" cy="11" rx="5" ry="12" :fill="it.color" stroke="#2C2620" stroke-width="2.8" transform="rotate(8 29 11)" />
+              <ellipse cx="19.5" cy="12" rx="2.4" ry="8" fill="#F79AC0" transform="rotate(-8 19.5 12)" />
+              <ellipse cx="28.5" cy="12" rx="2.4" ry="8" fill="#F79AC0" transform="rotate(8 28.5 12)" />
+              <circle cx="24" cy="32" r="13" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <circle cx="19" cy="30" r="2.2" fill="#2C2620" />
+              <circle cx="29" cy="30" r="2.2" fill="#2C2620" />
+              <path d="M22 35h4l-2 3z" fill="#F79AC0" stroke="#2C2620" stroke-width="1.6" stroke-linejoin="round" />
+              <rect x="22.5" y="38" width="3" height="4" rx="1" fill="#fff" stroke="#2C2620" stroke-width="1.4" />
+              <rect x="25.5" y="38" width="3" height="4" rx="1" fill="#fff" stroke="#2C2620" stroke-width="1.4" />
+            </template>
+
+            <!-- pig -->
+            <template v-else-if="it.shape === 'pig'">
+              <path d="M13 19l3-9 7 7z" :fill="it.color" stroke="#2C2620" stroke-width="2.8" stroke-linejoin="round" />
+              <path d="M35 19l-3-9-7 7z" :fill="it.color" stroke="#2C2620" stroke-width="2.8" stroke-linejoin="round" />
+              <circle cx="24" cy="29" r="15" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <ellipse cx="24" cy="32" rx="7" ry="5" fill="#FFD6E6" stroke="#2C2620" stroke-width="2" />
+              <circle cx="21.5" cy="32" r="1.4" fill="#2C2620" />
+              <circle cx="26.5" cy="32" r="1.4" fill="#2C2620" />
+              <circle cx="19" cy="25" r="2.2" fill="#2C2620" />
+              <circle cx="29" cy="25" r="2.2" fill="#2C2620" />
+            </template>
+
+            <!-- sheep -->
+            <template v-else-if="it.shape === 'sheep'">
+              <circle cx="13" cy="26" r="7" :fill="it.color" stroke="#2C2620" stroke-width="2.6" />
+              <circle cx="24" cy="22" r="8" :fill="it.color" stroke="#2C2620" stroke-width="2.6" />
+              <circle cx="35" cy="26" r="7" :fill="it.color" stroke="#2C2620" stroke-width="2.6" />
+              <ellipse cx="24" cy="33" rx="15" ry="11" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <ellipse cx="37" cy="31" rx="7" ry="8" fill="#8D6E63" stroke="#2C2620" stroke-width="2.4" />
+              <circle cx="36" cy="29" r="1.6" fill="#fff" />
+              <circle cx="40" cy="29" r="1.6" fill="#fff" />
+              <circle cx="38" cy="34" r="1.8" fill="#5B4A3F" />
+            </template>
+
+            <!-- cow -->
+            <template v-else-if="it.shape === 'cow'">
+              <ellipse cx="22" cy="33" rx="15" ry="10" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <ellipse cx="14" cy="30" rx="4" ry="5" fill="#4A3B32" opacity=".85" />
+              <ellipse cx="26" cy="36" rx="5" ry="4" fill="#4A3B32" opacity=".85" />
+              <path d="M34 26q10-4 12 4" fill="none" stroke="#2C2620" stroke-width="7" stroke-linecap="round" />
+              <circle cx="38" cy="22" r="8" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <path d="M32 16l-3-6 6 2zM44 16l3-6-6 2z" fill="#F5D9A8" stroke="#2C2620" stroke-width="2.2" stroke-linejoin="round" />
+              <ellipse cx="38" cy="27" rx="5" ry="3.6" fill="#FFD6E6" stroke="#2C2620" stroke-width="1.8" />
+              <circle cx="36" cy="20" r="1.8" fill="#2C2620" />
+              <path d="M30 14l-6-3M46 14l6-3" stroke="#2C2620" stroke-width="1.8" stroke-linecap="round" />
+            </template>
+
+            <!-- horse -->
+            <template v-else-if="it.shape === 'horse'">
+              <ellipse cx="21" cy="34" rx="14" ry="10" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <path d="M30 32q8-12 10-18" fill="none" stroke="#2C2620" stroke-width="8" stroke-linecap="round" />
+              <circle cx="41" cy="13" r="7" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <path d="M36 8l-2-6 5 3z" :fill="it.color" stroke="#2C2620" stroke-width="2.4" stroke-linejoin="round" />
+              <path d="M31 26q4-6 8-8" fill="none" stroke="#3A3630" stroke-width="5" stroke-linecap="round" />
+              <circle cx="43" cy="12" r="1.8" fill="#2C2620" />
+              <path d="M46 15h4M46 17h4" stroke="#2C2620" stroke-width="1.6" stroke-linecap="round" />
+              <path d="M10 40v5M20 41v5M32 41v5" stroke="#2C2620" stroke-width="4" stroke-linecap="round" />
+              <path d="M8 32q-6 2-7 8" fill="none" stroke="#3A3630" stroke-width="4" stroke-linecap="round" />
+            </template>
+
+            <!-- worm -->
+            <template v-else-if="it.shape === 'worm'">
+              <path d="M7 37q9-13 18-3t18 1" fill="none" :stroke="it.color" stroke-width="12" stroke-linecap="round" />
+              <path d="M12 33q6-7 12-3M24 30q6-3 11 1" fill="none" stroke="#2C2620" stroke-width="1.8" opacity=".5" stroke-linecap="round" />
+              <circle cx="42" cy="33" r="7" :fill="it.color" stroke="#2C2620" stroke-width="2.8" />
+              <circle cx="44" cy="31" r="1.8" fill="#2C2620" />
+              <path d="M45 36q3 2 5 0" fill="none" stroke="#2C2620" stroke-width="1.8" stroke-linecap="round" />
+            </template>
+
+            <!-- hedgehog -->
+            <template v-else-if="it.shape === 'hedgehog'">
+              <path d="M6 34l4-5 4 4 4-6 4 5 4-4 4 6 4-5 4 4 4-6 4 5" fill="none" :stroke="it.color" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+              <ellipse cx="25" cy="33" rx="17" ry="13" :fill="it.color" stroke="#2C2620" stroke-width="3" />
+              <ellipse cx="35" cy="32" rx="9" ry="10" fill="#F5D9A8" stroke="#2C2620" stroke-width="2.8" />
+              <circle cx="37" cy="29" r="2" fill="#2C2620" />
+              <circle cx="42" cy="34" r="2.6" fill="#F79AC0" stroke="#2C2620" stroke-width="1.6" />
+              <path d="M16 42v3M24 44v3" stroke="#2C2620" stroke-width="2.4" stroke-linecap="round" />
+            </template>
+
             <!-- pea -->
             <template v-else>
               <circle cx="24" cy="25" r="15" :fill="it.color" stroke="#2C2620" stroke-width="3.2" />
@@ -607,7 +796,7 @@ buildRound()
 
 .cc-item {
   position: absolute;
-  width: clamp(50px, 7.6vw, 86px);
+  width: clamp(46px, 6.8vw, 78px);
   transform: translate(-50%, -50%) rotate(var(--rot));
   animation: ccBob 3.6s ease-in-out infinite;
   animation-delay: var(--d, 0s);
@@ -659,7 +848,7 @@ buildRound()
   text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(16px, 2vw, 22px);
+  font-size: clamp(18px, 2.3vw, 25px);
   line-height: 1.3;
   color: var(--ink);
   background: var(--cream);
@@ -681,7 +870,7 @@ buildRound()
 
 @media (max-width: 640px) {
   .cc-item {
-    width: clamp(38px, 10.5vw, 58px);
+    width: clamp(36px, 9.5vw, 54px);
   }
   .cc-type-hint {
     display: none;

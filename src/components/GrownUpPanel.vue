@@ -43,6 +43,19 @@ function setRounds(n) {
   speak(`Games now have ${n} rounds.`)
 }
 
+function setLetterMode(mode) {
+  if (store.letterMode === mode) return
+  store.letterMode = mode
+  sfx.tap()
+  speak(
+    mode === 'first'
+      ? 'Only the first letter is missing.'
+      : mode === 'two'
+        ? 'Two letters are missing.'
+        : 'One random letter is missing.',
+  )
+}
+
 // keep stray digits from reaching the answer pads behind the panel
 function onKey(e) {
   if (e.key === 'Escape') emit('close')
@@ -105,6 +118,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey, true))
               @click="setRounds(n)"
             >
               {{ n }}
+            </button>
+          </div>
+        </div>
+
+        <div class="pause-rounds">
+          <span class="pause-label">
+            Missing letters
+            <small>Letter Pup: how many letters to hide.</small>
+          </span>
+          <div class="round-btns">
+            <button
+              v-for="m in [
+                { id: 'first', label: 'First' },
+                { id: 'random', label: 'Any' },
+                { id: 'two', label: 'Two' },
+              ]"
+              :key="m.id"
+              type="button"
+              class="round-btn"
+              :class="{ on: store.letterMode === m.id }"
+              :aria-pressed="store.letterMode === m.id"
+              @click="setLetterMode(m.id)"
+            >
+              {{ m.label }}
             </button>
           </div>
         </div>

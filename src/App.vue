@@ -10,6 +10,7 @@ import DinoHatch from './games/DinoHatch.vue'
 import AnimalFeast from './games/AnimalFeast.vue'
 import NumberParade from './games/NumberParade.vue'
 import ObjectCount from './games/ObjectCount.vue'
+import LetterPup from './games/LetterPup.vue'
 import { store } from './lib/store.js'
 
 const GAMES = {
@@ -22,9 +23,10 @@ const GAMES = {
   feast: AnimalFeast,
   parade: NumberParade,
   objects: ObjectCount,
+  spell: LetterPup,
 }
 
-const active = ref(null)
+const active = ref(new URLSearchParams(location.search).get('game') || null)
 const current = computed(() => (active.value ? GAMES[active.value] : null))
 
 function play(id) {

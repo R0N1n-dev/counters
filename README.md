@@ -16,7 +16,8 @@ Web Audio API, so the app is self-contained.
 | **Dino Hatch** | **Type digits + ✓** | Counting, numeral typing | Count the eggs in the nest, type the number, and hatch a baby dino. |
 | **Animal Feast** | **Type digits + ✓** | Counting, numeral typing | Leo the Lion, Pia the Panda and friends are hungry. Count the food brought for each animal, type the number, and watch it eat. |
 | **Number Parade** | Tap a number pad | Number sequences | A car, rocket, bunny or snail waits at the start. Tap a hidden 3-number sequence on the pad in order and your vehicle travels. |
-| **Object Count** | **Type digits + ✓** | Selective attention, counting | A mixed-up meadow of two item kinds — colour pairs (red/green apples, blue/red balls, stars vs moons, orange/blue fish, balloons, lollipops, hearts vs flowers, carrots vs peas) and object pairs (cars vs trains, planes vs boats, bikes vs cars, dogs vs cats, birds vs butterflies, ducks vs frogs, snails vs turtles, fish vs birds). Count only the ones asked for and type the number. |
+| **Object Count** | **Type digits + ✓** | Selective attention, counting | A mixed-up meadow of two item kinds — colour pairs (red/green apples, blue/red balls, stars vs moons, orange/blue fish, balloons, lollipops, hearts vs flowers, carrots vs peas) and object pairs (cars vs trains, planes vs boats, bikes vs cars, dogs vs cats, birds vs butterflies, ducks vs frogs, snails vs turtles, fish vs birds, buses vs trucks, bees vs ladybirds, mice vs rabbits, pigs vs sheep, cows vs horses, worms vs snakes). Count only the ones asked for and type the number. |
+| **Letter Pup** | Tap or type a letter | Early spelling | A picture and a word with missing letter(s) — fill them in on the big letter pad (or keyboard). ~150 words across animals, foods, transport, jobs and more; longer words sometimes hide two letters. Streaks are tracked and the best streak is remembered. |
 
 ## Features
 
@@ -26,7 +27,7 @@ Web Audio API, so the app is self-contained.
 - **Read aloud** — prompts are spoken by speech synthesis; the switch lives in the grown-ups panel with the sound effects
 - **1–5 toddler mode** — flip the switch on the meadow and every game counts only up to five: answer pads shrink to 1–5, typing pads show 1–5 keys, and the storybook shows two-to-five critters per page. The choice is remembered between visits, and it can be flipped mid-game from the grown-ups panel (⏸ in every game header, the sliders button on the meadow) — the round restarts with the new numbers. That panel is the one place for all the switches: 1–5 mode, **rounds per game (5, 10, 15, 25 or 50 stages, shown as a `round/total` counter)**, read aloud and sound effects.
 - Gentle wrong-answer feedback: a hint after two tries, plus an object-glow "count along" mode in the typing games
-- 3-star rating per game saved in `localStorage` (27 stars total)
+- 3-star rating per game saved in `localStorage` (30 stars total)
 - Mute toggle in the grown-ups panel, optional full-screen mode, skip-link-free keyboard play, reduced-motion support
 
 ## Run
@@ -42,7 +43,7 @@ bun run build    # production build in dist/
 ```
 src/
   App.vue                  screen switching
-  screens/HomeScreen.vue   meadow + nine game cards + preferences
+  screens/HomeScreen.vue   meadow + ten game cards + preferences
   games/                   the nine games
   components/              Pip, Chompy, confetti, number pad, typing pad, shell, …
   lib/                     store (localStorage), audio synth, helpers, speech

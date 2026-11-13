@@ -55,7 +55,7 @@ function buildRound() {
     ? [2, 3, 4, 5, 3][(round.value - 1) % 5]
     : 3 + ((round.value - 1) % 7)
   const n = target.value
-  const spots = scatterGrid(n, { cols: 4, rows: 3, x0: 12, x1: 84, y0: 16, y1: 58 })
+  const spots = scatterGrid(n, { cols: 4, rows: 3, x0: 14, x1: 80, y0: 20, y1: 56 })
   flies.value = spots.map((s, i) => ({
     id: `f${i}-${Math.random().toString(36).slice(2, 7)}`,
     x: s.x,
@@ -512,7 +512,7 @@ buildRound()
   text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(15px, 1.8vw, 19px);
+  font-size: clamp(17px, 2vw, 22px);
   color: var(--ink);
 }
 

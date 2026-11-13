@@ -79,6 +79,14 @@ const games = [
     tint: '#E3EEFF',
     isNew: true,
   },
+  {
+    id: 'spell',
+    name: 'Letter Pup',
+    tag: 'Fill in the missing letter and spell the picture.',
+    accent: '#9B72E8',
+    tint: '#F3E8FF',
+    isNew: true,
+  },
 ]
 
 const fullscreenAvailable =
@@ -209,7 +217,7 @@ function play(id) {
             <span v-if="g.isNew" class="card-new">new</span>
 
             <!-- balloon -->
-            <svg v-if="g.id === 'balloon'" viewBox="0 0 220 130" class="art art-balloon">
+            <svg v-if="g.id === 'balloon'" viewBox="-40 0 300 130" preserveAspectRatio="xMidYMid slice" class="art art-balloon">
               <g class="mini-balloon mb1"><ellipse cx="0" cy="0" rx="24" ry="29" fill="#F9715A" stroke="#2C2620" stroke-width="3.4" /><path d="M-6 27l6 8 6-8z" fill="#F9715A" stroke="#2C2620" stroke-width="3" /></g>
               <g class="mini-balloon mb2"><ellipse cx="0" cy="0" rx="21" ry="26" fill="#FFC93C" stroke="#2C2620" stroke-width="3.4" /><path d="M-6 24l6 8 6-8z" fill="#FFC93C" stroke="#2C2620" stroke-width="3" /></g>
               <g class="mini-balloon mb3"><ellipse cx="0" cy="0" rx="25" ry="30" fill="#8AD7F2" stroke="#2C2620" stroke-width="3.4" /><path d="M-6 28l6 8 6-8z" fill="#8AD7F2" stroke="#2C2620" stroke-width="3" /></g>
@@ -276,7 +284,7 @@ function play(id) {
 
             <!-- animal feast -->
             <div v-else-if="g.id === 'feast'" class="art art-feast">
-              <svg viewBox="0 0 220 130">
+              <svg class="art-fill" viewBox="-40 0 300 130" preserveAspectRatio="xMidYMid slice">
                 <circle cx="168" cy="62" r="40" fill="#D9822B" stroke="#2C2620" stroke-width="3.4" />
                 <circle cx="168" cy="66" r="24" fill="#F7C873" stroke="#2C2620" stroke-width="3" />
                 <circle cx="160" cy="62" r="3" fill="#2C2620" />
@@ -299,7 +307,7 @@ function play(id) {
 
             <!-- number parade -->
             <div v-else-if="g.id === 'parade'" class="art art-parade">
-              <svg viewBox="0 0 220 130">
+              <svg class="art-fill" viewBox="-40 0 300 130" preserveAspectRatio="xMidYMid slice">
                 <g class="np-mini-car">
                   <circle cx="66" cy="92" r="9" fill="#3A3630" stroke="#2C2620" stroke-width="2.6" />
                   <circle cx="98" cy="92" r="9" fill="#3A3630" stroke="#2C2620" stroke-width="2.6" />
@@ -322,7 +330,7 @@ function play(id) {
 
             <!-- object count -->
             <div v-else-if="g.id === 'objects'" class="art art-objects">
-              <svg viewBox="0 0 220 130">
+              <svg class="art-fill" viewBox="-40 0 300 130" preserveAspectRatio="xMidYMid slice">
                 <g transform="translate(40 66)">
                   <path d="M0-14c-7-4-14 1-14 9 0 8 6 14 14 14s14-6 14-14c0-8-7-13-14-9z" fill="#F0455F" stroke="#2C2620" stroke-width="3" stroke-linejoin="round" transform="scale(1.1)" />
                   <path d="M0-14c0-4 2-6 4-8" fill="none" stroke="#7A4A31" stroke-width="2.4" stroke-linecap="round" />
@@ -344,9 +352,24 @@ function play(id) {
               </svg>
             </div>
 
+            <!-- letter pup -->
+            <div v-else-if="g.id === 'spell'" class="art art-spell">
+              <svg class="art-fill" viewBox="-40 0 300 130" preserveAspectRatio="xMidYMid slice">
+                <text x="52" y="84" font-size="52" text-anchor="middle">🐱</text>
+                <g font-family="var(--font-display)" font-weight="800" font-size="26" text-anchor="middle">
+                  <rect x="96" y="52" width="30" height="38" rx="8" fill="#F3E8FF" stroke="#2C2620" stroke-width="3" />
+                  <text x="111" y="81" fill="#2C2620">C</text>
+                  <rect x="132" y="52" width="30" height="38" rx="8" fill="#fff" stroke="#9B72E8" stroke-width="3" stroke-dasharray="6 5" />
+                  <text x="147" y="81" fill="#9B72E8">?</text>
+                  <rect x="168" y="52" width="30" height="38" rx="8" fill="#F3E8FF" stroke="#2C2620" stroke-width="3" />
+                  <text x="183" y="81" fill="#2C2620">T</text>
+                </g>
+              </svg>
+            </div>
+
             <!-- storybook -->
             <div v-else class="art art-story">
-              <svg viewBox="0 0 220 130">
+              <svg class="art-fill" viewBox="-40 0 300 130" preserveAspectRatio="xMidYMid slice">
                 <path d="M110 34c-18-14-46-16-74-10v78c28-6 56-4 74 10 18-14 46-16 74-10V24c-28-6-56-4-74 10z" fill="#FFF6DF" stroke="#2C2620" stroke-width="3.6" stroke-linejoin="round" />
                 <path d="M110 34v78" stroke="#2C2620" stroke-width="3" />
                 <path d="M52 46c14-4 28-4 44 2M52 60c14-4 28-4 44 2M52 74c14-4 28-4 44 2" stroke="#C9B79C" stroke-width="3.4" stroke-linecap="round" />
@@ -395,6 +418,7 @@ function play(id) {
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   overflow-x: hidden;
   background: linear-gradient(180deg, #d9f2fb 0%, #f2fbf3 42%, #fdf4e3 100%);
 }
@@ -885,6 +909,12 @@ function play(id) {
   height: 100%;
 }
 
+.art-fill {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .mini-balloon {
   animation: floaty 4.4s ease-in-out infinite;
   transform-box: fill-box;
@@ -910,10 +940,10 @@ function play(id) {
 
 .chompy-mini {
   position: absolute;
-  width: 112px;
-  height: 112px;
-  bottom: -14px;
-  right: 6%;
+  width: 108px;
+  height: 108px;
+  bottom: 0;
+  right: 5%;
   animation: bob 3s ease-in-out infinite;
 }
 
@@ -1017,10 +1047,10 @@ function play(id) {
 
 .rk-ship {
   position: absolute;
-  right: 20%;
-  top: 8%;
-  width: 44%;
-  height: 110%;
+  right: 18%;
+  top: -2%;
+  width: 46%;
+  height: 104%;
   animation: bob 3.4s ease-in-out infinite;
 }
 
@@ -1055,8 +1085,8 @@ function play(id) {
 .dn-baby {
   position: absolute;
   left: 12%;
-  bottom: 6%;
-  width: 44%;
+  bottom: 8%;
+  width: 40%;
   height: auto;
   animation: bobSm 2.6s ease-in-out infinite;
 }
@@ -1273,7 +1303,16 @@ function play(id) {
     padding: 2px 8px;
   }
   .dn-baby {
-    width: 50%;
+    width: 44%;
+  }
+  .chompy-mini {
+    width: 62px;
+    height: 62px;
+    right: 4%;
+  }
+  .rk-ship {
+    height: 100%;
+    top: 0;
   }
 }
 

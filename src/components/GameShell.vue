@@ -118,7 +118,7 @@ function openPanel() {
   width: 100%;
   max-width: 1080px;
   margin: 0 auto;
-  padding: 12px clamp(10px, 2vw, 22px) 14px;
+  padding: 12px clamp(10px, 2vw, 22px) calc(14px + env(safe-area-inset-bottom, 0px));
   min-height: 0;
 }
 
@@ -272,6 +272,37 @@ function openPanel() {
   .star-max,
   .toddler-chip {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .shell {
+    gap: 6px;
+  }
+  .shell-title {
+    padding: 4px 14px 6px;
+  }
+  .shell-title-text {
+    font-size: 15px;
+  }
+  .shell-count {
+    font-size: 13px;
+    padding: 2px 9px 4px;
+  }
+  .star-pill {
+    display: none;
+  }
+  .shell-prompt {
+    min-height: 54px;
+    gap: 7px;
+  }
+  .prompt-pip {
+    width: 46px;
+    height: 46px;
+  }
+  .speak-btn {
+    width: 42px;
+    height: 42px;
   }
 }
 </style>

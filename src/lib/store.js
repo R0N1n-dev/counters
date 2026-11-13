@@ -1,7 +1,7 @@
 import { reactive, watch, computed } from 'vue'
 
 const KEY = 'counting-meadow-v1'
-const GAME_IDS = ['balloon', 'chompy', 'firefly', 'story', 'rocket', 'dino', 'feast', 'parade', 'objects']
+const GAME_IDS = ['balloon', 'chompy', 'firefly', 'story', 'rocket', 'dino', 'feast', 'parade', 'objects', 'spell']
 
 function load() {
   try {
@@ -26,7 +26,10 @@ export const store = reactive({
   toddler: saved.toddler === true,
   // stages per game: 5 up to 50
   rounds: [5, 10, 15, 25, 50].includes(saved.rounds) ? saved.rounds : 5,
+  // Letter Pup blanks: first letter only, one random letter, or two letters
+  letterMode: ['first', 'random', 'two'].includes(saved.letterMode) ? saved.letterMode : 'random',
   best: bestMap(),
+  spellBest: saved.spellBest || 0,
 })
 
 watch(
@@ -40,7 +43,9 @@ watch(
           readAloud: v.readAloud,
           toddler: v.toddler,
           rounds: v.rounds,
+          letterMode: v.letterMode,
           best: { ...v.best },
+          spellBest: v.spellBest,
         }),
       )
     } catch {

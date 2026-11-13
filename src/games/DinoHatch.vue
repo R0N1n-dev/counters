@@ -557,7 +557,7 @@ buildRound()
   text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(17px, 2.1vw, 24px);
+  font-size: clamp(19px, 2.4vw, 27px);
   line-height: 1.25;
   color: var(--ink);
   background: var(--cream);

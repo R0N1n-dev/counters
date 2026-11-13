@@ -669,6 +669,6 @@ onBeforeUnmount(clearTimers)
   text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(19px, 2.5vw, 26px);
+  font-size: clamp(21px, 2.8vw, 29px);
 }
 </style>

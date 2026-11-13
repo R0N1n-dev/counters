@@ -54,7 +54,7 @@ function buildRound() {
   target.value = targets[(round.value - 1) % targets.length]
   padRef.value?.clear()
 
-  const spots = scatterGrid(target.value, { cols: 5, rows: 2, x0: 40, x1: 93, y0: 14, y1: 54 })
+  const spots = scatterGrid(target.value, { cols: 5, rows: 2, x0: 38, x1: 84, y0: 18, y1: 56 })
   aliens.value = spots.map((s, i) => ({
     id: `a${i}-${Math.random().toString(36).slice(2, 7)}`,
     x: s.x,
@@ -523,7 +523,7 @@ buildRound()
   text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(17px, 2.1vw, 24px);
+  font-size: clamp(19px, 2.4vw, 27px);
   line-height: 1.25;
   color: var(--ink);
   background: var(--cream);

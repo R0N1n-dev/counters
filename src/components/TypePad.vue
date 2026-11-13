@@ -101,16 +101,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         ⌫
       </button>
       <button v-if="digits > 5" type="button" class="tp-key" :disabled="disabled" @click="press(0)">0</button>
-      <button
-        type="button"
-        class="tp-key tp-check"
-        :class="{ ready: canCheck }"
-        :disabled="!canCheck"
-        aria-label="Check my answer"
-        @click="submit"
-      >
-        ✓
-      </button>
     </div>
   </div>
 </template>
@@ -217,33 +207,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .tp-fn {
   background: #f4e3c8;
   font-size: calc(var(--k) * 0.42);
-}
-
-.tp-check {
-  background: var(--sun);
-  font-size: calc(var(--k) * 0.52);
-}
-
-.tp-check.ready {
-  background: var(--mint);
-  animation: readyPulse 1.2s ease-in-out infinite;
-}
-
-.tp-check:disabled.ready,
-.tp-check:disabled {
-  animation: none;
-}
-
-@keyframes readyPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 4px 0 var(--ink);
-  }
-  50% {
-    transform: scale(1.07);
-    box-shadow: 0 4px 0 var(--ink), 0 0 0 5px rgba(143, 224, 176, 0.45);
-  }
 }
 
 @media (max-width: 430px) {

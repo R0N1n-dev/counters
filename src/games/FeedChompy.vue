@@ -75,8 +75,8 @@ function buildRound() {
     const r = Math.floor(i / cols)
     return {
       id: `f${i}-${Math.random().toString(36).slice(2, 7)}`,
-      x: 8 + c * (24 / Math.max(1, cols - 1)) + randInt(-1, 1),
-      y: 62 + r * (rows > 1 ? 18 / (rows - 1) : 0) + randInt(-2, 2),
+      x: 20 + c * (60 / Math.max(1, cols - 1)) + randInt(-2, 2),
+      y: 30 + r * (rows > 1 ? 16 / (rows - 1) : 0) + randInt(-2, 2),
       rot: randInt(-18, 18),
       gone: false,
       flyX: null,
@@ -497,7 +497,7 @@ buildRound()
   left: 2%;
   bottom: 4%;
   width: 42%;
-  height: 48%;
+  aspect-ratio: 200 / 120;
   z-index: 4;
 }
 
